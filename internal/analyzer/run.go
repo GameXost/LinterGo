@@ -17,12 +17,12 @@ var loggers = map[string]struct{}{
 
 func run(pass *analysis.Pass) (interface{}, error) {
 	// обход инспектором более эффективен, однако при множественных обходах
-	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
+	insp := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	nodeFilter := []ast.Node{
 		(*ast.CallExpr)(nil),
 	}
 
-	inspect.Preorder(nodeFilter, func(n ast.Node) {
+	insp.Preorder(nodeFilter, func(n ast.Node) {
 		call := n.(*ast.CallExpr)
 
 		sel, ok := call.Fun.(*ast.SelectorExpr)
@@ -56,7 +56,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		if errorMsg := SpecialSymbols(msg); errorMsg != "" {
 			pass.Reportf(call.Pos(), errorMsg)
 		}
-		if errorMsg := SensitiveWords(msg); errorMsg != "" {
+		if errorMsg := SensitiveWords(call); errorMsg != "" {
 			pass.Reportf(call.Pos(), errorMsg)
 		}
 	})
