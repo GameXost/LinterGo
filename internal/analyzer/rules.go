@@ -36,7 +36,7 @@ func EnglishOnly(str string) string {
 
 func SpecialSymbols(str string) string {
 	for _, r := range str {
-		if !(unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r)) {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
 			return "the log message must not contain any special symbols"
 		}
 	}
@@ -84,9 +84,5 @@ func SensitiveWords(call *ast.CallExpr) string {
 	for k := range found {
 		resFound = append(resFound, k)
 	}
-	//password := "1234"
-	//apiKey := "1111"
-	//slog.Error("password " + password + "apikey " + apiKey)
-
 	return fmt.Sprintf("the log message must not contain any sensitive data: %s", strings.Join(resFound, ", "))
 }

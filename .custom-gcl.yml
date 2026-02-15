@@ -3,5 +3,5 @@ plugins:
 
 
   # a plugin from local source
-  - module: 'github.com/golangci/plugin2'
-    path: ./loglinter
+  - module: 'github.com/GameXost/LinterGo'
+    path: ./

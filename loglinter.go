@@ -1,10 +1,11 @@
-package linterGo
+package lintergo
 
 import (
+	"fmt"
 	"github.com/golangci/plugin-module-register/register"
 	"golang.org/x/tools/go/analysis"
 
-	"linterGo/internal/analyzer"
+	"github.com/GameXost/LinterGo/internal/analyzer"
 )
 
 type plugin struct{}
@@ -19,11 +20,11 @@ func (p *plugin) GetLoadMode() string {
 	return register.LoadModeTypesInfo
 }
 
-// фабрика
 func New(settings any) (register.LinterPlugin, error) {
 	return &plugin{}, nil
 }
 
 func init() {
+	fmt.Println("reigstered")
 	register.Plugin("loglinter", New)
 }
