@@ -154,51 +154,43 @@ func isLogMeth(name string) bool {
 	}
 	return false
 }
+
 func isLogger(pass *analysis.Pass, call *ast.CallExpr) bool {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 	if !ok {
 		return false
 	}
+
 	methodName := sel.Sel.Name
 	if !isLogMeth(methodName) {
 		return false
 	}
-	receiverType := pass.TypesInfo.TypeOf(sel.X)
-	if receiverType == nil {
-		return false
-	}
-	if ptr, ok := receiverType.Underlying().(*types.Pointer); ok {
-		receiverType = ptr.Elem()
-	}
-	named, ok := receiverType.(*types.Named)
-	if !ok {
-		return false
-	}
-	if named.Obj() == nil || named.Obj().Pkg() == nil {
-		return false
-	}
-
-	selectorObj := pass.TypesInfo.ObjectOf(sel.Sel)
-	if selectorObj == nil {
-		return false
-	}
-
-	pkg := selectorObj.Pkg()
-
-	if pkg == nil {
-		return false
-	}
-
-	//pkgPath := pkg.Path()
-	pkgPath := named.Obj().Pkg().Path()
 	availableLoggers := []string{
 		"log",
 		"log/slog",
 		"go.uber.org/zap",
 	}
-	for _, knownLogger := range availableLoggers {
-		if strings.Contains(pkgPath, knownLogger) {
-			return true
+	selObj := pass.TypesInfo.ObjectOf(sel.Sel)
+	if selObj != nil && selObj.Pkg() != nil {
+		pkgPath := selObj.Pkg().Path()
+		for _, knownLogger := range availableLoggers {
+			if strings.Contains(pkgPath, knownLogger) {
+				return true
+			}
+		}
+	}
+
+	ident, ok := sel.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	obj := pass.TypesInfo.Uses[ident]
+	if pkgName, ok := obj.(*types.PkgName); ok {
+		pkgPath := pkgName.Imported().Path()
+		for _, knownLogger := range availableLoggers {
+			if strings.Contains(pkgPath, knownLogger) {
+				return true
+			}
 		}
 	}
 	return false

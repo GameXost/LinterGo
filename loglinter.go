@@ -25,6 +25,6 @@ func New(settings any) (register.LinterPlugin, error) {
 }
 
 func init() {
-	fmt.Println("reigstered")
+	fmt.Println("reeee")
 	register.Plugin("loglinter", New)
 }
