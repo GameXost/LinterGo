@@ -1,4 +1,4 @@
-package analyser
+package analyzer
 
 import (
 	"fmt"
@@ -8,17 +8,21 @@ import (
 )
 
 func LowFirstLetter(str string) string {
+	str = strings.TrimLeft(str, " ")
 	if len(str) == 0 {
 		return ""
 	}
 	firstLetter := []rune(str)[0]
-	if unicode.IsLower(firstLetter) {
-		return ""
+	if unicode.IsLetter(firstLetter) {
+		if unicode.IsUpper(firstLetter) {
+			return "the log message must start with lowercase letter"
+		}
 	}
-	return "the log message must start with lowercase letter "
+
+	return ""
 }
 
-func AllEnglishLetters(str string) string {
+func EnglishOnly(str string) string {
 	strLower := strings.ToLower(str)
 	for _, r := range strLower {
 		if unicode.IsLetter(r) {
@@ -33,7 +37,7 @@ func AllEnglishLetters(str string) string {
 func SpecialSymbols(str string) string {
 	for _, r := range str {
 		if !(unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r)) {
-			return "the log message must not contain any special symbols "
+			return "the log message must not contain any special symbols"
 		}
 	}
 	return ""
@@ -43,6 +47,7 @@ var blackList = map[string]struct{}{
 	"password": {},
 	"pswd":     {},
 	"token":    {},
+	"api":      {},
 }
 
 // строка может быть заведомо некорректной типа Hello!!! password
@@ -55,14 +60,16 @@ func SensitiveWords(call *ast.CallExpr) string {
 	// опытным путем было выяснено, что в строке могу быть бан слова, а чувствительные данные априори будут передаваться через переменные
 	// таким образом будем искать бан ворды в аргументах - переменных в вызове
 
-	var found []string
+	found := make(map[string]struct{})
 	for _, arg := range call.Args {
 		ast.Inspect(arg, func(n ast.Node) bool {
 			if ident, ok := n.(*ast.Ident); ok {
 				name := strings.ToLower(ident.Name)
 				for k := range blackList {
 					if strings.Contains(name, k) {
-						found = append(found, name)
+						if _, has := found[ident.Name]; !has {
+							found[ident.Name] = struct{}{}
+						}
 					}
 				}
 			}
@@ -73,5 +80,13 @@ func SensitiveWords(call *ast.CallExpr) string {
 	if len(found) == 0 {
 		return ""
 	}
-	return fmt.Sprintf("the log message must not contain any sensitive data: %s", strings.Join(found, ", "))
+	resFound := make([]string, 0, len(found))
+	for k := range found {
+		resFound = append(resFound, k)
+	}
+	//password := "1234"
+	//apiKey := "1111"
+	//slog.Error("password " + password + "apikey " + apiKey)
+
+	return fmt.Sprintf("the log message must not contain any sensitive data: %s", strings.Join(resFound, ", "))
 }

@@ -1,4 +1,4 @@
-package analyser
+package analyzer
 
 import (
 	"go/ast"
@@ -48,16 +48,28 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 		// работа правил
 		if errorMsg := LowFirstLetter(msg); errorMsg != "" {
-			pass.Reportf(call.Pos(), errorMsg)
+			pass.Report(analysis.Diagnostic{
+				Pos:     call.Pos(),
+				Message: errorMsg,
+			})
 		}
-		if errorMsg := AllEnglishLetters(msg); errorMsg != "" {
-			pass.Reportf(call.Pos(), errorMsg)
+		if errorMsg := EnglishOnly(msg); errorMsg != "" {
+			pass.Report(analysis.Diagnostic{
+				Pos:     call.Pos(),
+				Message: errorMsg,
+			})
 		}
 		if errorMsg := SpecialSymbols(msg); errorMsg != "" {
-			pass.Reportf(call.Pos(), errorMsg)
+			pass.Report(analysis.Diagnostic{
+				Pos:     call.Pos(),
+				Message: errorMsg,
+			})
 		}
 		if errorMsg := SensitiveWords(call); errorMsg != "" {
-			pass.Reportf(call.Pos(), errorMsg)
+			pass.Report(analysis.Diagnostic{
+				Pos:     call.Pos(),
+				Message: errorMsg,
+			})
 		}
 	})
 	return nil, nil

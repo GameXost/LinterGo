@@ -1,4 +1,4 @@
-package analyser
+package analyzer
 
 import (
 	"golang.org/x/tools/go/analysis"
@@ -6,7 +6,7 @@ import (
 )
 
 var Analyzer = &analysis.Analyzer{
-	Name: "logLinter",
+	Name: "loglinter",
 	Doc:  "Checks logs to be proper",
 	//URL:              "",
 	//Flags:            flag.FlagSet{},
