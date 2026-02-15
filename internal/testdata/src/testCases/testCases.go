@@ -51,17 +51,6 @@ func testSensitiveData() {
 	slog.Error("user name" + name)
 }
 
-func testZap() {
-	logger, _ := zap.NewProduction()
-	logger.Info("Staaart")   // want "the log message must start with lowercase letter"
-	zap.L().Info("Staaart")  // want "the log message must start with lowercase letter"
-	logger.Info("ну уж нет") // want "the log message must be in english"
-	logger.Error("wtf!!!")   // want "the log message must not contain any special symbols"
-	password := "1234"
-	logger.Error("my password is hehehe" + password) // want "the log message must not contain any special symbols"
-
-	logger.Error("be happy dont worry")
-}
 func testExtra() {
 	log.Printf("")
 	log.Println("   ")
@@ -72,4 +61,14 @@ func testExtra() {
 	slog.Error("password " + password + "apikey " + apiKey) // want "the log message must not contain any sensitive data: password, apiKey"
 	slog.Info("user authenticated", "user", "john", "role", "admin")
 
+	logger, _ := zap.NewProduction()
+	logger.Info("Staaart")  // want "the log message must start with lowercase letter"
+	zap.L().Info("Staaart") // want "the log message must start with lowercase letter"
+
+	logger.Info("ну уж нет") // want "the log message must be in english"
+	logger.Error("wtf!!!")   // want "the log message must not contain any special symbols"
+
+	logger.Error("my password is hehehe" + password) // want "the log message must not contain any sensitive data: password"
+
+	logger.Error("be happy dont worry")
 }

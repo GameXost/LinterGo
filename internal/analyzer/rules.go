@@ -50,16 +50,7 @@ var blackList = map[string]struct{}{
 	"api":      {},
 }
 
-// строка может быть заведомо некорректной типа Hello!!! password
-// или же могут быть разделительные знаки кроме пробелов
-// хотя и выведется сообщение по 2 и 3 правилам, 4 тоже стоит вывести
-// так что надо убрать лишние знаки, разделить на слова и уже только тогда проверять на банлист
-
 func SensitiveWords(call *ast.CallExpr) string {
-
-	// опытным путем было выяснено, что в строке могу быть бан слова, а чувствительные данные априори будут передаваться через переменные
-	// таким образом будем искать бан ворды в аргументах - переменных в вызове
-
 	found := make(map[string]struct{})
 	for _, arg := range call.Args {
 		ast.Inspect(arg, func(n ast.Node) bool {
@@ -76,7 +67,6 @@ func SensitiveWords(call *ast.CallExpr) string {
 			return true
 		})
 	}
-
 	if len(found) == 0 {
 		return ""
 	}
