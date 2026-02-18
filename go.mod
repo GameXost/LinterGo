@@ -15,4 +15,3 @@ require (
 	golang.org/x/sync v0.19.0 // indirect
 )
 
-replace github.com/GameXost/LinterGo => ./
