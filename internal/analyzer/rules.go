@@ -52,6 +52,7 @@ var blackList = map[string]struct{}{
 
 func SensitiveWords(call *ast.CallExpr) string {
 	found := make(map[string]struct{})
+	res := make([]string, 0)
 	for _, arg := range call.Args {
 		ast.Inspect(arg, func(n ast.Node) bool {
 			if ident, ok := n.(*ast.Ident); ok {
@@ -60,6 +61,8 @@ func SensitiveWords(call *ast.CallExpr) string {
 					if strings.Contains(name, k) {
 						if _, has := found[ident.Name]; !has {
 							found[ident.Name] = struct{}{}
+							res = append(res, ident.Name)
+
 						}
 					}
 				}
@@ -71,7 +74,7 @@ func SensitiveWords(call *ast.CallExpr) string {
 		return ""
 	}
 	resFound := make([]string, 0, len(found))
-	for k := range found {
+	for _, k := range res {
 		resFound = append(resFound, k)
 	}
 	return fmt.Sprintf("the log message must not contain any sensitive data: %s", strings.Join(resFound, ", "))

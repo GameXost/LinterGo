@@ -1,24 +1,21 @@
 package analyzer
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
-	"go/types"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
 	"strings"
 )
 
-var loggerTypes = map[string]struct{}{
-	"log":             {},
-	"log/slog":        {},
-	"go.uber.org/zap": {},
+var availableLoggers = []string{
+	"log",
+	"log/slog",
+	"go.uber.org/zap",
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
-	fmt.Println("Shi;jon;ojnt")
 	if pass.TypesInfo == nil {
 		return nil, nil
 	}
@@ -30,11 +27,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	insp.Preorder(nodeFilter, func(n ast.Node) {
 		call := n.(*ast.CallExpr)
 
-		//sel, ok := call.Fun.(*ast.SelectorExpr)
-		//if !ok {
-		//	return
-		//}
-
 		if !isLogger(pass, call) {
 			return
 		}
@@ -45,7 +37,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			stringsTrimmed = append(stringsTrimmed, strings.Trim(str, `"`))
 		}
 		msg := strings.Join(stringsTrimmed, " ")
-		// работа правил
+
 		if errorMsg := LowFirstLetter(msg); errorMsg != "" {
 			pass.Report(analysis.Diagnostic{
 				Pos:     call.Pos(),
@@ -74,75 +66,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-//func ExtractLogMsg(call *ast.CallExpr) string {
-//	if len(call.Args) == 0 {
-//		return ""
-//	}
-//	var res []string
-//
-//	for _, arg := range call.Args {
-//		str := collectStr(arg)
-//		res = append(res, str...)
-//	}
-//
-//	result := strings.Join(res, " ")
-//	return result
-//}
-//
-//func collectStr(expr ast.Expr) []string {
-//	var res []string
-//
-//	ast.Inspect(expr, func(n ast.Node) bool {
-//		if lit, ok := n.(*ast.BasicLit); ok && lit.Kind == token.STRING {
-//			str := strings.Trim(lit.Value, `"`)
-//			res = append(res, str)
-//		}
-//		return true
-//	})
-//	return res
-//}
-
-//func isLoggerCall(expr ast.Expr, pass *analysis.Pass) bool {
-//	ident, ok := expr.(*ast.Ident)
-//	if ok {
-//		obj := pass.TypesInfo.Uses[ident]
-//		if pkgName, ok := obj.(*types.PkgName); ok {
-//			pkgPath := pkgName.Imported().Path()
-//			_, has := loggerTypes[pkgPath]
-//			return has
-//		}
-//	}
-//
-//	t := pass.TypesInfo.TypeOf(expr)
-//	if t == nil {
-//		return false
-//	}
-//
-//	// распаковочка, если указатель
-//	for {
-//		if ptr, ok := t.(*types.Pointer); ok {
-//			t = ptr.Elem()
-//		} else {
-//			break
-//		}
-//	}
-//
-//	named, ok := t.(*types.Named)
-//	if !ok {
-//		return false
-//	}
-//	obj := named.Obj()
-//	if obj == nil || obj.Pkg() == nil {
-//		return false
-//	}
-//	pkgPath := obj.Pkg().Path()
-//	//typeName := obj.Name()
-//
-//	_, has := loggerTypes[pkgPath]
-//	return has
-//
-//}
-
 func isLogMeth(name string) bool {
 	switch name {
 	case
@@ -165,34 +88,18 @@ func isLogger(pass *analysis.Pass, call *ast.CallExpr) bool {
 	if !isLogMeth(methodName) {
 		return false
 	}
-	availableLoggers := []string{
-		"log",
-		"log/slog",
-		"go.uber.org/zap",
-	}
+
+	// проверяет по пакету метода
 	selObj := pass.TypesInfo.ObjectOf(sel.Sel)
 	if selObj != nil && selObj.Pkg() != nil {
 		pkgPath := selObj.Pkg().Path()
 		for _, knownLogger := range availableLoggers {
-			if strings.Contains(pkgPath, knownLogger) {
+			if strings.HasPrefix(pkgPath, knownLogger+"/") || pkgPath == knownLogger {
 				return true
 			}
 		}
 	}
 
-	ident, ok := sel.X.(*ast.Ident)
-	if !ok {
-		return false
-	}
-	obj := pass.TypesInfo.Uses[ident]
-	if pkgName, ok := obj.(*types.PkgName); ok {
-		pkgPath := pkgName.Imported().Path()
-		for _, knownLogger := range availableLoggers {
-			if strings.Contains(pkgPath, knownLogger) {
-				return true
-			}
-		}
-	}
 	return false
 }
 
