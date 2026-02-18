@@ -72,3 +72,9 @@ func testExtra() {
 
 	logger.Error("be happy dont worry")
 }
+
+func testMultipleRules() {
+	log.Printf("Бай бай!!!") // want "the log message must start with lowercase letter"
+	// want "the log message must be in english"
+	// want "the log message must not contain any special symbols"
+}
