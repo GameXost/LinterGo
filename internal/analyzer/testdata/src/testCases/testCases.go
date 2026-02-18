@@ -74,7 +74,5 @@ func testExtra() {
 }
 
 func testMultipleRules() {
-	log.Printf("Бай бай!!!") // want "the log message must start with lowercase letter"
-	// want "the log message must be in english"
-	// want "the log message must not contain any special symbols"
+	log.Printf("Бай бай!!!") // want "the log message must start with lowercase letter" "the log message must be in english" "the log message must not contain any special symbols"
 }
