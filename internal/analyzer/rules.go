@@ -62,7 +62,6 @@ func SensitiveWords(call *ast.CallExpr) string {
 						if _, has := found[ident.Name]; !has {
 							found[ident.Name] = struct{}{}
 							res = append(res, ident.Name)
-
 						}
 					}
 				}
