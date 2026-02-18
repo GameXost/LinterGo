@@ -18,11 +18,36 @@ choco install golangci-lint
 или же
 go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1
 ```
-- Скопировать .yml файлы конфигурации в корень проекта
-```plaintext
-.custom-gcl.yml
-.golangci.yml
+- Создать .yml файлы конфигурации в корне проекта
+
+##### .custom-gcl.yml
+
+```yml
+version: v2.9.0
+
+plugins:
+  - module: github.com/GameXost/LinterGo
+    version: v1.0.0
 ```
+
+##### .golangci.yml
+```yml
+version: "2"
+linters:
+  enable:
+    - loglinter
+
+
+  settings:
+    custom:
+      loglinter:
+        type: "module"
+        description: "Checks logs to be proper"
+        settings:
+          extra-ban-words: ["private", "IP"]
+          disable-flags: [] #"low_first_letter", "english-only", "special-symbols", "sensitive-words"
+```
+
 - Собрать бинарник
 ```
 golangci-lint custom
@@ -92,6 +117,13 @@ log.Println("1111") // fine
 
 slog.Info("user authenticated", "user", "john", "role", "admin") // fine
 logger.Error("be happy dont worry") // fine
+```
+
+### Проверил на своем проектике
+```
+cmd\main.go:62:3: the log message must start with lowercase letter (loglinter)
+                log.Println("Cache loaded")
+                
 ```
 
 ## ПЫ СЫ:
