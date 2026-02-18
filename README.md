@@ -123,7 +123,9 @@ logger.Error("be happy dont worry") // fine
 ```
 cmd\main.go:62:3: the log message must start with lowercase letter (loglinter)
                 log.Println("Cache loaded")
-                
+internal\service\service_bruh.go:45:3: the log message must not contain any special symbols (loglinter)
+                log.Printf("inalid order data...")
+                ^                                        
 ```
 
 ## ПЫ СЫ:
