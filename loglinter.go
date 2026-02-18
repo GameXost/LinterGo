@@ -1,12 +1,9 @@
 package lintergo
 
 import (
-	"fmt"
+	"github.com/GameXost/LinterGo/internal/analyzer"
 	"github.com/golangci/plugin-module-register/register"
 	"golang.org/x/tools/go/analysis"
-	"log"
-
-	"github.com/GameXost/LinterGo/internal/analyzer"
 )
 
 type plugin struct{}
@@ -22,10 +19,6 @@ func (p *plugin) GetLoadMode() string {
 }
 
 func New(settings any) (register.LinterPlugin, error) {
-	var err = "123"
-	log.Println("Feq", err)
-	fmt.Println("settings:", settings)
-
 	if m, ok := settings.(map[string]any); ok {
 		if words, ok := m["extra-ban-words"].([]any); ok {
 			extraBanWords := make([]string, 0, len(words))

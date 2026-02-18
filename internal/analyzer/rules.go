@@ -57,7 +57,6 @@ func AddBanWords(words []string) {
 	return
 }
 func SensitiveWords(call *ast.CallExpr) string {
-	fmt.Println("blackList:", blackList)
 	found := make(map[string]struct{})
 	res := make([]string, 0)
 	for _, arg := range call.Args {
