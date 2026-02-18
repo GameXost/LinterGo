@@ -9,3 +9,5 @@ linters:
       loglinter:
         type: "module"
         description: "Checks logs to be proper"
+        settings:
+          extra-ban-words: ["private", "IP"]

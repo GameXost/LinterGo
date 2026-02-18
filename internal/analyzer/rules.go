@@ -50,6 +50,12 @@ var blackList = map[string]struct{}{
 	"api":      {},
 }
 
+func AddBanWords(words []string) {
+	for _, word := range words {
+		blackList[word] = struct{}{}
+	}
+	return
+}
 func SensitiveWords(call *ast.CallExpr) string {
 	found := make(map[string]struct{})
 	res := make([]string, 0)

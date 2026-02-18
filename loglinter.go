@@ -21,9 +21,20 @@ func (p *plugin) GetLoadMode() string {
 }
 
 func New(settings any) (register.LinterPlugin, error) {
+	if m, ok := settings.(map[string]any); ok {
+		if words, ok := m["extra-ban-words"].([]any); ok {
+			extraBanWords := make([]string, 0, len(words))
+			for _, word := range words {
+				if wordString, ok := word.(string); ok {
+					extraBanWords = append(extraBanWords, wordString)
+				}
+			}
+			analyzer.AddBanWords(extraBanWords)
+		}
+	}
+
 	return &plugin{}, nil
 }
-
 func init() {
 	fmt.Println("reeee")
 	register.Plugin("loglinter", New)
