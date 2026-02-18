@@ -11,3 +11,4 @@ linters:
         description: "Checks logs to be proper"
         settings:
           extra-ban-words: ["private", "IP"]
+          disable-flags: [] #"low_first_letter", "english-only", "special-symbols", "sensitive-words"

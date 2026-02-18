@@ -1,7 +1,6 @@
 package lintergo
 
 import (
-	"fmt"
 	"github.com/golangci/plugin-module-register/register"
 	"golang.org/x/tools/go/analysis"
 
@@ -31,11 +30,19 @@ func New(settings any) (register.LinterPlugin, error) {
 			}
 			analyzer.AddBanWords(extraBanWords)
 		}
+		disabled := make(map[string]bool)
+		if rules, ok := m["disable-flags"].([]any); ok {
+			for _, f := range rules {
+				if rule, ok := f.(string); ok {
+					disabled[rule] = true
+				}
+			}
+		}
+		analyzer.SetDisabled(disabled)
 	}
 
 	return &plugin{}, nil
 }
 func init() {
-	fmt.Println("reeee")
 	register.Plugin("loglinter", New)
 }

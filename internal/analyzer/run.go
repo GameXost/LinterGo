@@ -14,6 +14,7 @@ var availableLoggers = []string{
 	"log/slog",
 	"go.uber.org/zap",
 }
+var disabledRules = map[string]bool{}
 
 func run(pass *analysis.Pass) (interface{}, error) {
 	if pass.TypesInfo == nil {
@@ -38,29 +39,37 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		}
 		msg := strings.Join(stringsTrimmed, " ")
 
-		if errorMsg := LowFirstLetter(msg); errorMsg != "" {
-			pass.Report(analysis.Diagnostic{
-				Pos:     call.Pos(),
-				Message: errorMsg,
-			})
+		if !disabledRules["low_first_letter"] {
+			if errorMsg := LowFirstLetter(msg); errorMsg != "" {
+				pass.Report(analysis.Diagnostic{
+					Pos:     call.Pos(),
+					Message: errorMsg,
+				})
+			}
 		}
-		if errorMsg := EnglishOnly(msg); errorMsg != "" {
-			pass.Report(analysis.Diagnostic{
-				Pos:     call.Pos(),
-				Message: errorMsg,
-			})
+		if !disabledRules["english-only"] {
+			if errorMsg := EnglishOnly(msg); errorMsg != "" {
+				pass.Report(analysis.Diagnostic{
+					Pos:     call.Pos(),
+					Message: errorMsg,
+				})
+			}
 		}
-		if errorMsg := SpecialSymbols(msg); errorMsg != "" {
-			pass.Report(analysis.Diagnostic{
-				Pos:     call.Pos(),
-				Message: errorMsg,
-			})
+		if !disabledRules["special-symbols"] {
+			if errorMsg := SpecialSymbols(msg); errorMsg != "" {
+				pass.Report(analysis.Diagnostic{
+					Pos:     call.Pos(),
+					Message: errorMsg,
+				})
+			}
 		}
-		if errorMsg := SensitiveWords(call); errorMsg != "" {
-			pass.Report(analysis.Diagnostic{
-				Pos:     call.Pos(),
-				Message: errorMsg,
-			})
+		if !disabledRules["sensitive-words"] {
+			if errorMsg := SensitiveWords(call); errorMsg != "" {
+				pass.Report(analysis.Diagnostic{
+					Pos:     call.Pos(),
+					Message: errorMsg,
+				})
+			}
 		}
 	})
 	return nil, nil
@@ -128,4 +137,8 @@ func extractAllStrings(node ast.Node) []string {
 		}
 	}
 	return res
+}
+
+func SetDisabled(rules map[string]bool) {
+	disabledRules = rules
 }
