@@ -10,5 +10,5 @@ linters:
         type: "module"
         description: "Checks logs to be proper"
         settings:
-          extra-ban-words: ["private", "IP"]
+          extra-ban-words: ["private", "ip", "err"]
           disable-flags: [] #"low_first_letter", "english-only", "special-symbols", "sensitive-words"
