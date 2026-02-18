@@ -6,13 +6,9 @@ import (
 )
 
 var Analyzer = &analysis.Analyzer{
-	Name: "loglinter",
-	Doc:  "Checks logs to be proper",
-	//URL:              "",
-	//Flags:            flag.FlagSet{},
+	Name:             "loglinter",
+	Doc:              "Checks logs to be proper",
 	Run:              run,
 	RunDespiteErrors: false,
 	Requires:         []*analysis.Analyzer{inspect.Analyzer},
-	//ResultType:       nil,
-	//FactTypes:        nil,
 }
